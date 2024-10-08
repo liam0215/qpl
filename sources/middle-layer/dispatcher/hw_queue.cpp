@@ -116,15 +116,9 @@ auto hw_queue::enqueue_descriptor(void* desc_ptr) const noexcept -> qpl_status {
         uint8_t retry = 0U; //NOLINT(misc-const-correctness)
 
         void* current_place_ptr = get_portal_ptr();
-        // asm volatile(
-        //         "sfence\t\n"
-        //         ".byte 0xf2, 0x0f, 0x38, 0xf8, 0x02\t\n"
-        //         "setz %0\t\n"
-        //         : "=r"(retry)
-        //         : "a"(current_place_ptr), "d"(desc_ptr));
         asm volatile(
                 "sfence\t\n"
-        	".byte 0x40, 0x0f, 0x38, 0xf9, 0x02\t\n"
+                ".byte 0xf2, 0x0f, 0x38, 0xf8, 0x02\t\n"
                 "setz %0\t\n"
                 : "=r"(retry)
                 : "a"(current_place_ptr), "d"(desc_ptr));
