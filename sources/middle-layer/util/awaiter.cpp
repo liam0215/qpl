@@ -7,6 +7,10 @@
 #include "awaiter.hpp"
 #include <stdio.h>
 
+#ifdef QPL_LOG_IAA_TIME
+#include "hw_timing_util.hpp"
+#endif
+
 #if defined(__linux__)
 
 #include <x86intrin.h>
@@ -66,6 +70,11 @@ awaiter::~awaiter() noexcept {
     while (initial_value_ == *address_ptr_) {
         _mm_pause();
     }
+#endif
+
+#ifdef QPL_LOG_IAA_TIME
+    // Record the end time right after descriptor is completed
+    dispatcher::record_iaa_end_time();
 #endif
 }
 
