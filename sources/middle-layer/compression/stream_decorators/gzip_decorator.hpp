@@ -36,7 +36,7 @@ public:
 
     template <class F, class state_t>
     static auto wrap(F function, state_t& state, uint8_t* begin, const uint32_t current_in_size,
-                     const uint32_t prev_processed_size) noexcept -> compression_operation_result_t;
+                     const uint32_t prev_processed_size, const int32_t numa_id = -1) noexcept -> compression_operation_result_t;
 
     struct gzip_header {
         uint8_t ID1;

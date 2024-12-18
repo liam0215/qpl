@@ -170,7 +170,7 @@ uint32_t perform_compression(qpl_job* const job_ptr) noexcept {
 
         if (job_ptr->flags & QPL_FLAG_CANNED_MODE) { // LZ Only
             result = deflate<path, deflate_mode_t::deflate_no_headers>(state, job_ptr->next_in_ptr,
-                                                                       job_ptr->available_in);
+                                                                       job_ptr->available_in, job_ptr->numa_id);
         } else {
             if (job_ptr->flags & QPL_FLAG_GZIP_MODE) {
                 result = gzip_decorator::wrap(deflate<path, deflate_mode_t::deflate_default>, state,
@@ -184,7 +184,7 @@ uint32_t perform_compression(qpl_job* const job_ptr) noexcept {
                                               job::get_adler32(job_ptr)); // previously computed checksum
             } else {
                 result = default_decorator::wrap(deflate<path, deflate_mode_t::deflate_default>, state,
-                                                 job_ptr->next_in_ptr, job_ptr->available_in);
+                                                 job_ptr->next_in_ptr, job_ptr->available_in, job_ptr->numa_id);
             }
         }
     }

@@ -23,6 +23,7 @@
 #include "own_ml_submit_operation_api.hpp"
 #include "util/hw_status_converting.hpp"
 #include "util/iaa_features_checks.hpp"
+#include <iostream>
 
 static inline qpl_comp_style own_get_compression_style(const qpl_job* const job_ptr) {
     if (job_ptr->flags & QPL_FLAG_DYNAMIC_HUFFMAN) {
@@ -144,6 +145,7 @@ extern "C" qpl_status hw_descriptor_compress_init_deflate_base(qpl_job*         
         bool is_hw_1_pass_header_gen = false;
         bool is_hw_2_pass_header_gen = false;
         if (is_hw_header_gen_supported) {
+            std::cerr << "header gen supported!" << std::endl;
             if (qpl_job_ptr->available_in <= 4096U && !dictionary) {
                 is_hw_1_pass_header_gen = true;
             } else {
@@ -152,6 +154,7 @@ extern "C" qpl_status hw_descriptor_compress_init_deflate_base(qpl_job*         
         }
 
         if (is_hw_1_pass_header_gen) {
+            std::cerr << "Oh wow!" << std::endl;
             // For 1-pass header gen, Huffman Table generation and compression will be done in the same pass
             hw_iaa_descriptor_init_deflate_body((hw_descriptor*)descriptor_ptr, qpl_job_ptr->next_in_ptr,
                                                 qpl_job_ptr->available_in, qpl_job_ptr->next_out_ptr,
@@ -165,6 +168,8 @@ extern "C" qpl_status hw_descriptor_compress_init_deflate_base(qpl_job*         
                                                             hw_iaa_terminator_t::end_of_block);
 
         } else if (is_hw_2_pass_header_gen) {
+            std::cerr << "2 pass hdr gen!" << std::endl;
+
             // 2-pass header generation, the first pass will calculate Huffman Table
             hw_iaa_descriptor_init_statistic_collector_with_header_gen(
                     (hw_descriptor*)descriptor_ptr, qpl_job_ptr->next_in_ptr, qpl_job_ptr->available_in,
@@ -191,6 +196,8 @@ extern "C" qpl_status hw_descriptor_compress_init_deflate_base(qpl_job*         
             state_ptr->aecs_hw_read_offset ^= 1U;
 
         } else {
+            std::cerr << "no hdr gen!" << std::endl;
+
             // Dynamic deflate, the first pass will calculate the statistics
             hw_iaa_descriptor_init_statistic_collector((hw_descriptor*)descriptor_ptr, qpl_job_ptr->next_in_ptr,
                                                        qpl_job_ptr->available_in, &configuration_ptr->histogram);

@@ -48,7 +48,7 @@ public:
 
     template <class F, class state_t>
     static auto wrap(F function, state_t& state, uint8_t* begin, const uint32_t current_in_size,
-                     const uint32_t prev_adler32) noexcept -> compression_operation_result_t;
+                     const uint32_t prev_adler32, const int32_t numa_id = -1) noexcept -> compression_operation_result_t;
 
     struct zlib_header {
         uint8_t  compression_info;

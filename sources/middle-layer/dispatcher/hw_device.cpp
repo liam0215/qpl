@@ -10,6 +10,8 @@
 
 #include <cinttypes>
 
+#include <iostream>
+#include <x86intrin.h>
 #include "hw_descriptors_api.h"
 #include "hw_device.hpp"
 #include "util/topology.hpp"
@@ -276,21 +278,25 @@ auto hw_device::end() const noexcept -> queues_container_t::const_iterator {
 auto hw_device::is_matching_user_numa_policy(int32_t user_specified_numa_id) const noexcept -> bool {
     // If the device is not NUMA-aware or user specifies any NUMA id, then we can't check NUMA policy
     // and, in this case, we will be using the device for execution.
-    if (numa_node_id_ == (uint64_t)(-1) || user_specified_numa_id == QPL_DEVICE_NUMA_ID_ANY) { return true; }
+    if (numa_node_id_ == (uint64_t)(-1) || user_specified_numa_id == QPL_DEVICE_NUMA_ID_ANY) { 
+        return true;
+    }
 
     if (user_specified_numa_id >= 0) { // user specified NUMA node id
-        return (numa_node_id_ == (uint64_t)(user_specified_numa_id));
+        bool result = (numa_node_id_ == (uint64_t)(user_specified_numa_id));
+        return result;
     }
 
     if (user_specified_numa_id == QPL_DEVICE_NUMA_ID_CURRENT) {
-        return (numa_node_id_ == (uint64_t)qpl::ml::util::get_numa_id());
+        bool result = (numa_node_id_ == (uint64_t)qpl::ml::util::get_numa_id());
+        return result;
     }
 
     if (user_specified_numa_id == QPL_DEVICE_NUMA_ID_SOCKET) {
-        return (numa_node_id_ == (uint64_t)qpl::ml::util::get_numa_id() ||
+        bool result = (numa_node_id_ == (uint64_t)qpl::ml::util::get_numa_id() ||
                 socket_id_ == qpl::ml::util::get_socket_id());
+        return result;
     }
-
     return false;
 }
 

@@ -49,7 +49,7 @@ auto deflate_pass(deflate_state<execution_path_t::software>& stream, uint8_t* be
 
 template <>
 auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_no_headers>(
-        deflate_state<execution_path_t::hardware>& state, uint8_t* begin, const uint32_t size) noexcept
+        deflate_state<execution_path_t::hardware>& state, uint8_t* begin, const uint32_t size, const int32_t numa_id) noexcept
         -> compression_operation_result_t {
     //    auto output_begin_ptr = state.next_out();
 
@@ -107,7 +107,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_no_headers>(
     }
 
     result = util::process_descriptor<compression_operation_result_t, util::execution_mode_t::sync>(
-            state.compress_descriptor_, state.completion_record_);
+            state.compress_descriptor_, state.completion_record_, numa_id);
 
     if (result.status_code_ == status_list::ok) {
         result.completed_bytes_ = size;
@@ -178,7 +178,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_no_headers>(
 template <>
 auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_default>(
         deflate_state<execution_path_t::hardware>& state, uint8_t* source_begin_ptr,
-        const uint32_t source_size) noexcept -> compression_operation_result_t {
+        const uint32_t source_size, const int32_t numa_id) noexcept -> compression_operation_result_t {
     compression_operation_result_t result;
     auto                           actual_aecs      = state.meta_data_->aecs_index; // AECS used to read
     auto                           output_begin_ptr = state.next_out();
@@ -270,7 +270,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_default>(
 
                 // The 1st pass will generate Huffman table and deflate header
                 result = util::process_descriptor<compression_operation_result_t, util::execution_mode_t::sync>(
-                        state.collect_statistic_descriptor_, state.completion_record_);
+                        state.collect_statistic_descriptor_, state.completion_record_, numa_id);
 
                 if (result.status_code_) { return result; }
 
@@ -293,7 +293,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_default>(
                                                                state.meta_data_->mini_block_size_);
 
                 result = util::process_descriptor<compression_operation_result_t, util::execution_mode_t::sync>(
-                        state.collect_statistic_descriptor_, state.completion_record_);
+                        state.collect_statistic_descriptor_, state.completion_record_, numa_id);
 
                 if (result.status_code_) { return result; }
 
@@ -375,7 +375,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_default>(
     // Submit compression descriptor if previous submission(s) fail to submit successfully
     if (state.multi_desc_status == qpl_none_completed || state.multi_desc_status == qpl_stats_collect_completed) {
         result = util::process_descriptor<compression_operation_result_t, util::execution_mode_t::sync>(
-                state.compress_descriptor_, state.completion_record_);
+                state.compress_descriptor_, state.completion_record_, numa_id);
 
         if (result.status_code_ == status_list::destination_is_short_error) {
             // There can't be multiple stored blocks while indexing
@@ -433,7 +433,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_default>(
         if (state.is_last_chunk()) { hw_iaa_descriptor_inflate_set_flush(state.verify_descriptor_); }
 
         auto verify_result = util::process_descriptor<verification_pass_result_t, util::execution_mode_t::sync>(
-                state.verify_descriptor_, state.completion_record_);
+                state.verify_descriptor_, state.completion_record_, numa_id);
 
         if (verify_result.status_code_ ||
             (state.is_last_chunk() && verify_result.checksums_.crc32_ != result.checksums_.crc32_)) {
@@ -464,7 +464,7 @@ auto deflate<execution_path_t::hardware, deflate_mode_t::deflate_default>(
 
 template <>
 auto deflate<execution_path_t::software, deflate_mode_t::deflate_no_headers>(
-        deflate_state<execution_path_t::software>& state, uint8_t* begin, const uint32_t size) noexcept
+        deflate_state<execution_path_t::software>& state, uint8_t* begin, const uint32_t size, const int32_t numa_id) noexcept
         -> compression_operation_result_t {
     state.compression_mode_ = canned_mode;
     auto output_begin_ptr   = state.next_out();
@@ -512,7 +512,7 @@ auto deflate<execution_path_t::software, deflate_mode_t::deflate_no_headers>(
 
 template <>
 auto deflate<execution_path_t::software, deflate_mode_t::deflate_default>(
-        deflate_state<execution_path_t::software>& state, uint8_t* begin, const uint32_t size) noexcept
+        deflate_state<execution_path_t::software>& state, uint8_t* begin, const uint32_t size, const int32_t numa_id) noexcept
         -> compression_operation_result_t {
     auto output_begin_ptr = state.next_out();
 

@@ -200,7 +200,7 @@ template auto zlib_decorator::unwrap<inflate_t<execution_path_t::hardware>, infl
 
 template <class F, class state_t>
 auto zlib_decorator::wrap(F function, state_t& state, uint8_t* begin, const uint32_t current_in_size,
-                          const uint32_t prev_adler32) noexcept -> compression_operation_result_t {
+                          const uint32_t prev_adler32, const int32_t numa_id) noexcept -> compression_operation_result_t {
     compression_operation_result_t result {};
 
     auto data_ptr      = state.next_out();
@@ -216,7 +216,7 @@ auto zlib_decorator::wrap(F function, state_t& state, uint8_t* begin, const uint
         state.set_output_prologue(wrapper_bytes);
     }
 
-    result = function(state, begin, current_in_size);
+    result = function(state, begin, current_in_size, numa_id);
 
     // With qpl_path_auto, if execution on qpl_path_hardware writes header and then gets error in execution,
     // fallback to qpl_path_software will write header again before execution. In this case, compressed
@@ -247,11 +247,11 @@ using deflate_t = decltype(deflate<path, deflate_mode_t::deflate_default>)*;
 
 template auto zlib_decorator::wrap<deflate_t<execution_path_t::software>, deflate_state<execution_path_t::software>>(
         deflate_t<execution_path_t::software> function, deflate_state<execution_path_t::software>& state,
-        uint8_t* begin, const uint32_t current_in_size, const uint32_t prev_processed_size) noexcept
+        uint8_t* begin, const uint32_t current_in_size, const uint32_t prev_processed_size, const int32_t numa_id) noexcept
         -> compression_operation_result_t;
 
 template auto zlib_decorator::wrap<deflate_t<execution_path_t::hardware>, deflate_state<execution_path_t::hardware>>(
         deflate_t<execution_path_t::hardware> function, deflate_state<execution_path_t::hardware>& state,
-        uint8_t* begin, const uint32_t current_in_size, const uint32_t prev_processed_size) noexcept
+        uint8_t* begin, const uint32_t current_in_size, const uint32_t prev_processed_size, const int32_t numa_id) noexcept
         -> compression_operation_result_t;
 } // namespace qpl::ml::compression
