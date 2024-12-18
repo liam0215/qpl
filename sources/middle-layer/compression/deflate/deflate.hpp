@@ -28,7 +28,7 @@ enum class deflate_mode_t {
 };
 
 template <execution_path_t path, deflate_mode_t mode, class stream_t = deflate_state<path>>
-auto deflate(stream_t& stream, uint8_t* begin, const uint32_t size) noexcept -> compression_operation_result_t;
+auto deflate(stream_t& stream, uint8_t* begin, const uint32_t size, const int32_t numa_id = -1) noexcept -> compression_operation_result_t;
 
 } // namespace qpl::ml::compression
 

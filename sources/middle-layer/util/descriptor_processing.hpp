@@ -8,8 +8,10 @@
 #define QPL_DESCRIPTOR_PROCESSING_HPP
 
 #include <array>
+#include <cstdint>
 #include <emmintrin.h>
-
+#include <iostream>
+#include <x86intrin.h>
 #include "hw_definitions.h"
 
 // middle-layer
@@ -24,8 +26,19 @@ enum class execution_mode_t { sync, async };
 
 template <typename return_t>
 inline auto wait_descriptor_result(HW_PATH_VOLATILE hw_completion_record* const completion_record_ptr) -> return_t {
+    // _mm_mfence();
+    // uint64_t start = __rdtsc();
     awaiter::wait_for(&completion_record_ptr->status, AD_STATUS_INPROG);
-
+    // uint64_t end = __rdtsc();
+    // uint32_t eax, ebx, ecx, edx;
+    // __asm__ __volatile__ (
+    //     "cpuid"
+    //     : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+    //     : "a"(0x16)
+    // );
+    // float clock_freq_ = (eax & 0xFFFF);
+    // float us = (float)(end - start) / clock_freq_;
+    // std::cout << "awaiter::wait_for us: " << us << std::endl;
     return ml::util::completion_record_convert_to_result<return_t>(completion_record_ptr);
 }
 
@@ -38,7 +51,27 @@ inline auto process_descriptor(hw_descriptor* const                         desc
     hw_iaa_descriptor_set_completion_record(descriptor_ptr, completion_record_ptr);
     completion_record_ptr->status = AD_STATUS_INPROG; // Mark completion record as not completed
 
+    // printf("HW Descriptor bytes:\n");
+    // for (int i = 0; i < 64; i++) {
+    //     printf("%02x ", descriptor_ptr->data[i]);
+    //     if ((i + 1) % 8 == 0) {
+    //         printf("\n");
+    //     }
+    // }
+    // printf("\n");
+    // _mm_mfence();
+    // uint64_t start = __rdtsc();
     auto accel_status = hw_enqueue_descriptor(descriptor_ptr, numa_id);
+    // uint64_t end = __rdtsc();
+    // uint32_t eax, ebx, ecx, edx;
+    // __asm__ __volatile__ (
+    //         "cpuid"
+    //         : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+    //         : "a"(0x16)
+    // );
+    // float clock_freq_ = (eax & 0xFFFF);
+    // float us = (float)(end - start) / clock_freq_;
+    // std::cout << "hw_enqueue_descriptor us: " << us << std::endl;
 
     if constexpr (mode == execution_mode_t::sync) {
         uint32_t status = convert_hw_accelerator_status_to_qpl_status(accel_status); //NOLINT(misc-const-correctness)
@@ -57,6 +90,7 @@ inline auto process_descriptor(hw_descriptor* const                         desc
         // check that the Fault Address is available, touch the memory and resubmit descriptor again.
         if ((AD_STATUS_READ_PAGE_FAULT == completion_record_ptr->status ||
              AD_STATUS_WRITE_PAGE_FAULT == completion_record_ptr->status)) {
+            std::cout << "This should not be happening" << std::endl;
 
             uint8_t  fault_info    = 0U; // not in use currently
             uint64_t fault_address = 0U;

@@ -27,7 +27,7 @@ class deflate_state<execution_path_t::hardware> final {
     friend class deflate_state_builder;
 
     template <execution_path_t path, deflate_mode_t mode, class stream_t>
-    friend auto deflate(stream_t& stream, uint8_t* begin, const uint32_t size) noexcept
+    friend auto deflate(stream_t& stream, uint8_t* begin, const uint32_t size, const int32_t numa_id) noexcept
             -> compression_operation_result_t;
 
     friend auto write_stored_block(deflate_state<execution_path_t::hardware>& state) noexcept

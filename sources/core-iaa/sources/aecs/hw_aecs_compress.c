@@ -5,6 +5,7 @@
  ******************************************************************************/
 
 #include <assert.h>
+#include <stdint.h>
 
 #include "hw_aecs_api.h"
 #include "own_compress.h"
@@ -155,6 +156,16 @@ HW_PATH_IAA_AECS_API(void, compress_write_deflate_dynamic_header_from_histogram,
             aecs_ptr->histogram.ll_sym, aecs_ptr->histogram.d_sym, aecs_ptr->output_accum,
             sizeof(aecs_ptr->output_accum), num_output_accum_bits, histogram_ptr->ll_sym, histogram_ptr->d_sym);
     if (b_final) { aecs_ptr->output_accum[num_output_accum_bits / 8U] |= 1ULL << (num_output_accum_bits & 7U); }
+    // printf("OA bytes:\n");
+    // uint32_t i = 0;
+    // while(i < aecs_ptr->num_output_accum_bits) {
+    //     printf("%08x ", aecs_ptr->output_accum[i]);
+    //     if ((i + 1) % 8 == 0) {
+    //         printf("\n");
+    //     }
+    //     i++;
+    // }
+    // printf("\n");
 }
 
 HW_PATH_IAA_AECS_API(void, compress_set_huffman_only_huffman_table,

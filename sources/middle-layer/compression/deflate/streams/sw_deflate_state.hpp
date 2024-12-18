@@ -37,7 +37,7 @@ class deflate_state<execution_path_t::software> final : public compression_strea
     friend class zlib_decorator;
 
     template <execution_path_t path, deflate_mode_t mode, class stream_t>
-    friend auto deflate(stream_t& stream, uint8_t* begin, const uint32_t size) noexcept
+    friend auto deflate(stream_t& stream, uint8_t* begin, const uint32_t size, const int32_t numa_id) noexcept
             -> compression_operation_result_t;
 
 public:
