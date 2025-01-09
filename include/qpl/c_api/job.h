@@ -219,7 +219,7 @@ QPL_API(qpl_status, qpl_wait_job, (qpl_job * qpl_job_ptr))
  *
  * @return One of statuses presented in the @ref qpl_status
  */
-QPL_API(qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr))
+QPL_API(qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr, uint64_t *start_time))
 
 /**
  * @brief Completes @ref qpl_job lifecycle: disconnects from the internal library context, frees internal resources.

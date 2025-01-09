@@ -117,7 +117,7 @@ QPL_LOW_LEVEL_API_BAD_ARGUMENT_TEST(qpl_wait, test) {
 }
 
 QPL_LOW_LEVEL_API_BAD_ARGUMENT_TEST(qpl_check, test) {
-    EXPECT_EQ(QPL_STS_NULL_PTR_ERR, qpl_check_job(nullptr)) << "Failed on job_ptr == nullptr";
+    EXPECT_EQ(QPL_STS_NULL_PTR_ERR, qpl_check_job(nullptr, nullptr)) << "Failed on job_ptr == nullptr";
 
     if (qpl_path_hardware == job_ptr->data_ptr.path) {
         // re-init the job, and check for unsubmitted job
@@ -127,7 +127,7 @@ QPL_LOW_LEVEL_API_BAD_ARGUMENT_TEST(qpl_check, test) {
 
         job_ptr->op          = qpl_op_crc64;
         job_ptr->next_in_ptr = (uint8_t*)job_ptr;
-        EXPECT_EQ(QPL_STS_JOB_NOT_SUBMITTED, qpl_check_job(job_ptr)) << "Failed on checking unsubmitted job";
+        EXPECT_EQ(QPL_STS_JOB_NOT_SUBMITTED, qpl_check_job(job_ptr, nullptr)) << "Failed on checking unsubmitted job";
     }
 }
 

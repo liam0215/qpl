@@ -361,7 +361,7 @@ qpl_status hw_check_compress_job(qpl_job* qpl_job_ptr) {
 
 } // namespace qpl::ml
 
-extern "C" qpl_status hw_check_job(qpl_job* qpl_job_ptr) {
+extern "C" qpl_status hw_check_job(qpl_job* qpl_job_ptr, uint64_t *start_time = nullptr) {
     using namespace qpl;
 
     auto* const state_ptr = reinterpret_cast<qpl_hw_state*>(job::get_state(qpl_job_ptr));
@@ -374,6 +374,18 @@ extern "C" qpl_status hw_check_job(qpl_job* qpl_job_ptr) {
 
     if (AD_STATUS_INPROG == comp_ptr->status && (!state_ptr->descriptor_not_submitted)) {
         return QPL_STS_BEING_PROCESSED;
+    }
+
+    // TODO: LIAM - record time here since this is the point at which accelerator has set done bit in completion record.
+    // That means time between here and next descriptor submission is all SW overhead.
+    if (start_time != nullptr) {
+        unsigned start_lo, start_hi;
+        asm volatile ("CPUID\n\t" "RDTSC\n\t"
+                      "mov %%edx, %0\n\t"
+                      "mov %%eax, %1\n\t"
+                      : "=r" (start_hi), "=r" (start_lo)
+                      :: "%rax", "%rbx", "%rcx", "%rdx");
+        *start_time = (((uint64_t)start_hi << 32) | start_lo);
     }
 
     if (TRIVIAL_COMPLETE == comp_ptr->status) {
@@ -431,7 +443,7 @@ extern "C" qpl_status hw_check_job(qpl_job* qpl_job_ptr) {
 
             return QPL_STS_OK;
         }
-
+        
         return ml::hw_check_compress_job(qpl_job_ptr);
     }
 

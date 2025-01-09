@@ -96,7 +96,7 @@ protected:
     }
 
     [[nodiscard]] task_status_e async_poll_impl() {
-        auto status = qpl_check_job(job_);
+        auto status = qpl_check_job(job_, nullptr);
         if (QPL_STS_BEING_PROCESSED == status)
             return task_status_e::in_progress;
         else {

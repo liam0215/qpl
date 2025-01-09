@@ -187,7 +187,7 @@ QPL_FUN("C" qpl_status, qpl_submit_job, (qpl_job * qpl_job_ptr)) {
     return status;
 }
 
-QPL_FUN("C" qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr)) {
+QPL_FUN("C" qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr, uint64_t *start_time = nullptr)) {
     using namespace qpl;
 
     QPL_BAD_PTR_RET(qpl_job_ptr);
@@ -206,7 +206,7 @@ QPL_FUN("C" qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr)) {
     auto stored_status = job::get_async_job_status(qpl_job_ptr);
     if (stored_status != QPL_STS_BEING_PROCESSED) { return stored_status; }
 
-    if (job::is_supported_on_hardware(qpl_job_ptr)) { status = hw_check_job(qpl_job_ptr); }
+    if (job::is_supported_on_hardware(qpl_job_ptr)) { status = hw_check_job(qpl_job_ptr, start_time); }
 
     // Do not attempt host execution if the job is being processed
     if (QPL_STS_BEING_PROCESSED == status) { return static_cast<qpl_status>(status); }
@@ -249,7 +249,7 @@ QPL_FUN("C" qpl_status, qpl_wait_job, (qpl_job * qpl_job_ptr)) {
     // HW path doesn't support qpl_high_level compression ratio and ZLIB headers/trailers
     if (job::is_supported_on_hardware(qpl_job_ptr)) {
         do { //NOLINT(cppcoreguidelines-avoid-do-while)
-            status = hw_check_job(qpl_job_ptr);
+            status = hw_check_job(qpl_job_ptr, nullptr);
         } while (QPL_STS_BEING_PROCESSED == status);
     }
 
