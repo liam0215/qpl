@@ -196,8 +196,6 @@ extern "C" qpl_status hw_descriptor_compress_init_deflate_base(qpl_job*         
             state_ptr->aecs_hw_read_offset ^= 1U;
 
         } else {
-            std::cerr << "no hdr gen!" << std::endl;
-
             // Dynamic deflate, the first pass will calculate the statistics
             hw_iaa_descriptor_init_statistic_collector((hw_descriptor*)descriptor_ptr, qpl_job_ptr->next_in_ptr,
                                                        qpl_job_ptr->available_in, &configuration_ptr->histogram);
