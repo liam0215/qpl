@@ -45,7 +45,7 @@ inline auto wait_descriptor_result(HW_PATH_VOLATILE hw_completion_record* const 
 template <typename return_t, execution_mode_t mode>
 inline auto process_descriptor(hw_descriptor* const                         descriptor_ptr,
                                HW_PATH_VOLATILE hw_completion_record* const completion_record_ptr,
-                               int32_t                                      numa_id = -1) noexcept -> return_t {
+                               int32_t                                      numa_id = -2) noexcept -> return_t {
     return_t operation_result;
 
     hw_iaa_descriptor_set_completion_record(descriptor_ptr, completion_record_ptr);
