@@ -219,6 +219,26 @@ QPL_FUN("C" qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr)) {
     return static_cast<qpl_status>(status);
 }
 
+QPL_FUN("C" qpl_status, qpl_cheap_check_job, (qpl_job * qpl_job_ptr)) {
+    using namespace qpl;
+
+    QPL_BAD_PTR_RET(qpl_job_ptr);
+    uint32_t status = QPL_STS_OK;
+
+    // If job was submitted on the Auto Path, and fell back to SW, return OK
+    if (qpl_path_auto == qpl_job_ptr->data_ptr.path) {
+        auto* state_ptr = reinterpret_cast<qpl_hw_state*>(job::get_state(qpl_job_ptr));
+        if (state_ptr->is_sw_fallback) { return QPL_STS_OK; }
+    }
+
+    if (job::is_supported_on_hardware(qpl_job_ptr)) { status = hw_cheap_check_job(qpl_job_ptr); }
+
+
+    // Do not attempt host execution if the job is being processed
+    if (QPL_STS_BEING_PROCESSED == status) { return static_cast<qpl_status>(status); }
+    return static_cast<qpl_status>(status);
+}
+
 QPL_FUN("C" qpl_status, qpl_wait_job, (qpl_job * qpl_job_ptr)) {
     using namespace qpl;
 

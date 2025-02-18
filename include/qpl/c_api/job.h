@@ -213,13 +213,24 @@ QPL_API(qpl_status, qpl_wait_job, (qpl_job * qpl_job_ptr))
 
 /**
  * @brief Checks the status of @ref qpl_job processing. (can be queried periodically to check the status
- *        of the qpl_submit_job)
+ *        of the qpl_submit_job). Resubmits job for 2nd pass if 1st pass is done.
  *
  * @param[in,out]  qpl_job_ptr  Pointer to the initialized @ref qpl_job structure
  *
  * @return One of statuses presented in the @ref qpl_status
  */
 QPL_API(qpl_status, qpl_check_job, (qpl_job * qpl_job_ptr))
+
+
+/**
+ * @brief Checks the status of @ref qpl_job processing. (can be queried periodically to check the status
+ *        of the qpl_submit_job). Does not automatically resubmit for 2nd pass.
+ *
+ * @param[in,out]  qpl_job_ptr  Pointer to the initialized @ref qpl_job structure
+ *
+ * @return One of statuses presented in the @ref qpl_status
+ */
+QPL_API(qpl_status, qpl_cheap_check_job, (qpl_job * qpl_job_ptr))
 
 /**
  * @brief Completes @ref qpl_job lifecycle: disconnects from the internal library context, frees internal resources.

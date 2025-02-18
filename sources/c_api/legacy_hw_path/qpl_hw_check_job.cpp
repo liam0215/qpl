@@ -512,3 +512,26 @@ extern "C" qpl_status hw_check_job(qpl_job* qpl_job_ptr) {
 
     return QPL_STS_OK;
 }
+
+
+extern "C" qpl_status hw_cheap_check_job(qpl_job* qpl_job_ptr) {
+    using namespace qpl;
+    auto* const state_ptr = reinterpret_cast<qpl_hw_state*>(job::get_state(qpl_job_ptr));
+    hw_iaa_completion_record* const           comp_ptr  = &state_ptr->comp_ptr;
+    if (!state_ptr->job_is_submitted) { return QPL_STS_JOB_NOT_SUBMITTED; }
+
+    if (AD_STATUS_INPROG == comp_ptr->status && (!state_ptr->descriptor_not_submitted)) {
+        return QPL_STS_BEING_PROCESSED;
+    }
+
+    if (TRIVIAL_COMPLETE == comp_ptr->status) {
+        job::update_input_stream(qpl_job_ptr, comp_ptr->bytes_completed);
+
+        return QPL_STS_OK;
+    }
+
+    const ml::qpl_ml_status hw_status =
+            ml::util::convert_status_iaa_to_qpl(reinterpret_cast<hw_completion_record*>(comp_ptr));
+    
+    return static_cast<qpl_status>(hw_status);
+}
