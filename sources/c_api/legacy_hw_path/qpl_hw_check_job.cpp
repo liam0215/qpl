@@ -538,7 +538,7 @@ extern "C" qpl_status hw_cheap_check_job(qpl_job* qpl_job_ptr) {
     using namespace qpl;
     auto* const state_ptr = reinterpret_cast<qpl_hw_state*>(job::get_state(qpl_job_ptr));
     hw_iaa_completion_record* const           comp_ptr  = &state_ptr->comp_ptr;
-    if (!state_ptr->job_is_submitted) { return QPL_STS_JOB_NOT_SUBMITTED; }
+    if (!job::is_job_submitted(qpl_job_ptr)) { return QPL_STS_JOB_NOT_SUBMITTED; }
 
     if (AD_STATUS_INPROG == comp_ptr->status && (!state_ptr->descriptor_not_submitted)) {
         return QPL_STS_BEING_PROCESSED;
