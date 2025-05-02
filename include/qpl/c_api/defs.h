@@ -336,8 +336,8 @@ typedef enum {
  */
 typedef enum {
     HW_NONE    = DICT_NONE, /**< No compression expected to be performed on hardware */
-    SMALL      = 0,         /**< The lowest compression level */
-    LARGE      = 1,         /**< The highest compression level */
+    SMALL_LVL  = 0,         /**< The lowest compression level */
+    LARGE_LVL  = 1,         /**< The highest compression level */
     HW_LEVEL_1 = 2,         /**< The 1st dictionary compression level, using a small-sized dictionary */
     HW_LEVEL_2 = 3,         /**< The 2nd dictionary compression level, using a medium-sized dictionary */
     HW_LEVEL_3 = 4          /**< The 3rd dictionary compression level, using a large-sized dictionary */

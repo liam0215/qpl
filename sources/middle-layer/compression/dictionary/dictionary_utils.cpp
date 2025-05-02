@@ -113,11 +113,11 @@ auto convert_public_hw_dict_level_to_internal(hw_compression_level hw_dict_level
     hardware_dictionary_level hw_dict_level_internal = hardware_dictionary_level::LEVEL_1;
 
     switch (hw_dict_level) {
-        case hw_compression_level::SMALL: {
+        case hw_compression_level::SMALL_LVL: {
             hw_dict_level_internal = hardware_dictionary_level::LEVEL_1;
             break;
         }
-        case hw_compression_level::LARGE: {
+        case hw_compression_level::LARGE_LVL: {
             hw_dict_level_internal = hardware_dictionary_level::LEVEL_3;
             break;
         }

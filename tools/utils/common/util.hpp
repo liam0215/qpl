@@ -22,7 +22,7 @@
 #define BYTE_BIT_LENGTH 8U
 
 namespace qpl::test {
-static std::vector<hw_compression_level> hw_levels {hw_compression_level::SMALL, hw_compression_level::LARGE,
+static std::vector<hw_compression_level> hw_levels {hw_compression_level::SMALL_LVL, hw_compression_level::LARGE_LVL,
                                                     hw_compression_level::HW_LEVEL_1, hw_compression_level::HW_LEVEL_2,
                                                     hw_compression_level::HW_LEVEL_3};
 
